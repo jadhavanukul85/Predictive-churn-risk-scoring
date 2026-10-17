@@ -10,23 +10,23 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 def load_and_preprocess_data(filepath=None):
     if filepath is None:
-        # Automatically search root and current directory for ANY csv file
+        # Recursively search the entire repository for ANY .csv file
         root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        current_dir = os.path.dirname(__file__)
         
-        search_dirs = [root_dir, current_dir, "."]
         csv_file = None
-        
-        for d in search_dirs:
-            if os.path.exists(d):
-                files = os.listdir(d)
-                csv_files = [f for f in files if f.endswith('.csv')]
-                if csv_files:
-                    csv_file = os.path.join(d, csv_files[0])
+        for dirpath, _, filenames in os.walk(root_dir):
+            for file in filenames:
+                if file.endswith('.csv'):
+                    csv_file = os.path.join(dirpath, file)
                     break
+            if csv_file:
+                break
         
         if csv_file is None:
-            raise FileNotFoundError(f"No CSV dataset found in directories: {search_dirs}. Please ensure your dataset is uploaded to GitHub.")
+            raise FileNotFoundError(
+                "No CSV dataset found anywhere in the repository. "
+                "Please make sure your dataset CSV file is uploaded to GitHub!"
+            )
         
         filepath = csv_file
             
@@ -57,7 +57,7 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test):
     preprocessor = ColumnTransformer(
         transformers=[
             ('num', StandardScaler(), num_cols),
-            ('cat', OneHotEncoder(drop='first'), cat_cols)
+            ('cat', OneHoldEncoder(drop='first') if 'OneHoldEncoder' in globals() else OneHotEncoder(drop='first'), cat_cols)
         ],
         remainder='passthrough'
     )
