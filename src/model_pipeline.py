@@ -10,23 +10,25 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 def load_and_preprocess_data(filepath=None):
     if filepath is None:
-        # Automatically look in root and src folders for either filename variant
-        possible_paths = [
-            "European_Bank (1).csv",
-            "Bank_Customer_Churn.csv",
-            os.path.join(os.path.dirname(__file__), "..", "European_Bank (1).csv"),
-            os.path.join(os.path.dirname(__file__), "..", "Bank_Customer_Churn.csv"),
-            os.path.join(os.path.dirname(__file__), "European_Bank (1).csv"),
-        ]
+        # Automatically search root and current directory for ANY csv file
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        current_dir = os.path.dirname(__file__)
         
-        filepath = None
-        for path in possible_paths:
-            if os.path.exists(path):
-                filepath = path
-                break
-                
-        if filepath is None:
-            raise FileNotFoundError("Could not find 'European_Bank (1).csv' or 'Bank_Customer_Churn.csv' in the repository.")
+        search_dirs = [root_dir, current_dir, "."]
+        csv_file = None
+        
+        for d in search_dirs:
+            if os.path.exists(d):
+                files = os.listdir(d)
+                csv_files = [f for f in files if f.endswith('.csv')]
+                if csv_files:
+                    csv_file = os.path.join(d, csv_files[0])
+                    break
+        
+        if csv_file is None:
+            raise FileNotFoundError(f"No CSV dataset found in directories: {search_dirs}. Please ensure your dataset is uploaded to GitHub.")
+        
+        filepath = csv_file
             
     df = pd.read_csv(filepath)
     
