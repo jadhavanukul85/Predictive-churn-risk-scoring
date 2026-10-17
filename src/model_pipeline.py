@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
@@ -7,7 +8,26 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 
-def load_and_preprocess_data(filepath="European_Bank (1).csv"):
+def load_and_preprocess_data(filepath=None):
+    if filepath is None:
+        # Automatically look in root and src folders for either filename variant
+        possible_paths = [
+            "European_Bank (1).csv",
+            "Bank_Customer_Churn.csv",
+            os.path.join(os.path.dirname(__file__), "..", "European_Bank (1).csv"),
+            os.path.join(os.path.dirname(__file__), "..", "Bank_Customer_Churn.csv"),
+            os.path.join(os.path.dirname(__file__), "European_Bank (1).csv"),
+        ]
+        
+        filepath = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                filepath = path
+                break
+                
+        if filepath is None:
+            raise FileNotFoundError("Could not find 'European_Bank (1).csv' or 'Bank_Customer_Churn.csv' in the repository.")
+            
     df = pd.read_csv(filepath)
     
     # 1. Feature Engineering
