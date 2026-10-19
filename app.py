@@ -32,11 +32,9 @@ def load_data():
 
 df, file_exists = load_data()
 
-# Show status notification
+# Show a warning ONLY if it falls back to sample data (hides the success banner)
 if not file_exists:
     st.warning("⚠️ 'data/European_Bank (1).csv' was not found. Currently displaying sample dashboard data. Check your GitHub repository structure.")
-else:
-    st.success("✅ Successfully loaded real data from 'data/European_Bank (1).csv'!", icon="📊")
 
 # --- SIDEBAR: Filters ---
 st.sidebar.header("🔍 Filters")
