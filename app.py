@@ -9,16 +9,17 @@ st.set_page_config(
     layout="wide"
 )
 
-# Load Data Safely with a Fallback
+# Load Data Safely from the 'data/' folder with a Fallback
 @st.cache_data
 def load_data():
+    file_path = "data/European_Bank (1).csv"
     try:
-        return pd.read_csv("European_Bank (1).csv")
+        return pd.read_csv(file_path), True
     except FileNotFoundError:
-        # Fallback sample data so the app never crashes
+        # Fallback sample data so the app never throws a hard crash
         np.random.seed(42)
         n = 1000
-        return pd.DataFrame({
+        df_sample = pd.DataFrame({
             'CreditScore': np.random.randint(350, 850, n),
             'Geography': np.random.choice(['France', 'Spain', 'Germany'], n),
             'Age': np.random.randint(18, 70, n),
@@ -27,14 +28,15 @@ def load_data():
             'Tenure': np.random.randint(0, 10, n),
             'EstimatedSalary': np.random.uniform(20000, 150000, n)
         })
+        return df_sample, False
 
-df = load_data()
+df, file_exists = load_data()
 
-# Show a warning if using fallback data
-try:
-    pd.read_csv("European_Bank (1).csv")
-except FileNotFoundError:
-    st.warning("⚠️ 'European_Bank (1).csv' was not found in your repository root. Currently displaying sample dashboard data. Push your CSV file to GitHub to see your real data.")
+# Show status notification
+if not file_exists:
+    st.warning("⚠️ 'data/European_Bank (1).csv' was not found. Currently displaying sample dashboard data. Check your GitHub repository structure.")
+else:
+    st.success("✅ Successfully loaded real data from 'data/European_Bank (1).csv'!", icon="📊")
 
 # --- SIDEBAR: Filters ---
 st.sidebar.header("🔍 Filters")
