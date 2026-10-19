@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 # Page Configuration
 st.set_page_config(
@@ -8,25 +9,39 @@ st.set_page_config(
     layout="wide"
 )
 
-# Load Data Directly
+# Load Data Safely with a Fallback
 @st.cache_data
 def load_data():
-    return pd.read_csv("European_Bank (1).csv")
+    try:
+        return pd.read_csv("European_Bank (1).csv")
+    except FileNotFoundError:
+        # Fallback sample data so the app never crashes
+        np.random.seed(42)
+        n = 1000
+        return pd.DataFrame({
+            'CreditScore': np.random.randint(350, 850, n),
+            'Geography': np.random.choice(['France', 'Spain', 'Germany'], n),
+            'Age': np.random.randint(18, 70, n),
+            'Balance': np.random.uniform(0, 150000, n),
+            'Exited': np.random.choice([0, 1], n, p=[0.8, 0.2]),
+            'Tenure': np.random.randint(0, 10, n),
+            'EstimatedSalary': np.random.uniform(20000, 150000, n)
+        })
 
+df = load_data()
+
+# Show a warning if using fallback data
 try:
-    df = load_data()
-except Exception as e:
-    st.error(f"Could not load 'European_Bank (1).csv'. Make sure the file is in your repository root folder. Error: {e}")
-    st.stop()
+    pd.read_csv("European_Bank (1).csv")
+except FileNotFoundError:
+    st.warning("⚠️ 'European_Bank (1).csv' was not found in your repository root. Currently displaying sample dashboard data. Push your CSV file to GitHub to see your real data.")
 
 # --- SIDEBAR: Filters ---
 st.sidebar.header("🔍 Filters")
 
-# Geography filter
 countries = ["All"] + list(df['Geography'].unique()) if 'Geography' in df.columns else ["All"]
 selected_country = st.sidebar.selectbox("Country", options=countries)
 
-# Age filter
 min_age = int(df['Age'].min()) if 'Age' in df.columns else 18
 max_age = int(df['Age'].max()) if 'Age' in df.columns else 100
 age_range = st.sidebar.slider("Age Range", min_age, max_age, (min_age, max_age))
