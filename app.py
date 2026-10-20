@@ -10,40 +10,110 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- MODERN ADAPTIVE STYLING (Works perfectly in both Light & Dark Mode) ---
+# Gen Z Modern Executive Theme (Explicit Colors - Consistent across Light & Dark OS themes)
 st.markdown("""
 <style>
-    /* Main container and font styling */
+    /* Force high contrast text colors globally across OS theme switches */
+    html, body, [class*="css"], .stMarkdown, p, span, label, div {
+        color: #f3f4f6 !important;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Main App Background: Deep Midnight Blue/Indigo Gradient */
     .stApp {
-        background-color: var(--background-color);
-        color: var(--text-color);
+        background: radial-gradient(circle at 10% 20%, #111827 0%, #0f0a1e 50%, #030014 100%) !important;
     }
-    
-    /* Modern card look for metrics and sections */
-    div[data-testid="stMetric"] {
-        background-color: var(--secondary-background-color);
-        border: 1px solid rgba(128, 128, 128, 0.2);
-        padding: 15px 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-    }
-    div[data-testid="stMetric"]:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Sidebar styling polish */
+
+    /* Sidebar Background and Border */
     section[data-testid="stSidebar"] {
-        background-color: var(--secondary-background-color);
-        border-right: 1px solid rgba(128, 128, 128, 0.15);
+        background-color: #0b0918 !important;
+        border-right: 1px solid rgba(139, 92, 246, 0.25) !important;
     }
-    
-    /* Headers and Subheaders */
-    h1, h2, h3 {
-        font-family: 'Inter', sans-serif;
-        font-weight: 700;
-        letter-spacing: -0.5px;
+
+    /* Sidebar Headers, Labels, Subheaders & Caption Override */
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] .stMarkdown,
+    section[data-testid="stSidebar"] caption {
+        color: #e2e8f0 !important;
+    }
+
+    /* Metric Cards Styling */
+    div[data-testid="stMetric"] {
+        background: rgba(22, 19, 43, 0.85) !important;
+        border: 1px solid rgba(139, 92, 246, 0.3) !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Hover Effect on Metric Cards */
+    div[data-testid="stMetric"]:hover {
+        transform: translateY(-4px);
+        border-color: #38bdf8 !important;
+        box-shadow: 0 12px 30px rgba(56, 189, 248, 0.25) !important;
+    }
+
+    /* Top Accent Line on Metric Cards */
+    div[data-testid="stMetric"]::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #a855f7, #38bdf8, #34d399);
+    }
+
+    /* KPI Titles / Labels inside Metric Cards */
+    div[data-testid="stMetricLabel"], div[data-testid="stMetricLabel"] p {
+        color: #cbd5e1 !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+    }
+
+    /* KPI Metric Values Color */
+    div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] div {
+        color: #38bdf8 !important;
+        font-weight: 700 !important;
+    }
+
+    /* Tab Headers */
+    button[data-baseweb="tab"] {
+        background-color: transparent !important;
+        color: #9ca3af !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        padding: 8px 16px !important;
+    }
+
+    button[aria-selected="true"] {
+        color: #ffffff !important;
+        background: rgba(139, 92, 246, 0.3) !important;
+        border-bottom: 2px solid #a855f7 !important;
+    }
+
+    /* Buttons: Purple/Blue Gradient */
+    div.stButton > button, div.stDownloadButton > button {
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
+        color: #ffffff !important;
+        border-radius: 10px !important;
+        border: none !important;
+        padding: 10px 22px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
+    }
+
+    div.stButton > button:hover, div.stDownloadButton > button:hover {
+        background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%) !important;
+        box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5) !important;
     }
 </style>
 """, unsafe_allow_html=True)
