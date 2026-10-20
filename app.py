@@ -103,20 +103,53 @@ st.markdown("---")
 tab1, tab2, tab3 = st.tabs(["📊 Overview", "🔮 Customer Simulator", "📁 Raw Data & Export"])
 
 with tab1:
-    st.subheader("Data Insights")
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown("**Churn Rate by Age**")
-        if 'Age' in filtered_df.columns and 'Exited' in filtered_df.columns:
-            st.line_chart(filtered_df.groupby('Age')['Exited'].mean())
+    st.subheader("📊 Customer Churn Insights & Trends")
+    st.markdown("Analyze behavior patterns and risk factors within your filtered customer segment.")
+    
+    if len(filtered_df) == 0:
+        st.warning("⚠️ No customers match your current filter criteria. Please adjust your sidebar filters.")
+    else:
+        if 'Exited' in filtered_df.columns:
+            col_chart1, col_chart2 = st.columns(2)
+            
+            with col_chart1:
+                st.markdown("**📍 Churn Rate by Country (%)**")
+                if 'Geography' in filtered_df.columns:
+                    geo_churn = filtered_df.groupby('Geography')['Exited'].mean() * 100
+                    st.bar_chart(geo_churn)
+                else:
+                    st.info("Geography column not found.")
+                    
+            with col_chart2:
+                st.markdown("**📈 Churn Rate by Age**")
+                if 'Age' in filtered_df.columns:
+                    age_churn = filtered_df.groupby('Age')['Exited'].mean() * 100
+                    st.line_chart(age_churn)
+                else:
+                    st.info("Age column not found.")
+                    
+            st.markdown("---")
+            
+            col_chart3, col_chart4 = st.columns(2)
+            
+            with col_chart3:
+                st.markdown("**👤 Impact of Active Membership (%)**")
+                if 'IsActiveMember' in filtered_df.columns:
+                    active_churn = filtered_df.groupby('IsActiveMember')['Exited'].mean() * 100
+                    active_churn.index = active_churn.index.map({0: 'Inactive Member', 1: 'Active Member'})
+                    st.bar_chart(active_churn)
+                else:
+                    st.info("IsActiveMember column not found.")
+                    
+            with col_chart4:
+                st.markdown("**🛍️ Churn Rate by Number of Products**")
+                if 'NumOfProducts' in filtered_df.columns:
+                    prod_churn = filtered_df.groupby('NumOfProducts')['Exited'].mean() * 100
+                    st.bar_chart(prod_churn)
+                else:
+                    st.info("NumOfProducts column not found.")
         else:
-            st.info("Chart data unavailable.")
-    with c2:
-        st.markdown("**Balance Distribution (Sample)**")
-        if 'Balance' in filtered_df.columns:
-            st.bar_chart(filtered_df['Balance'].head(40))
-        else:
-            st.info("Chart data unavailable.")
+            st.info("The target column 'Exited' was not found in the dataset to calculate churn analytics.")
 
 with tab2:
     st.subheader("🔮 Individual Customer Churn Risk Simulator")
