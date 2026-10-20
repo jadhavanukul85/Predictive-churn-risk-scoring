@@ -36,24 +36,54 @@ df, file_exists = load_data()
 if not file_exists:
     st.warning("⚠️ 'data/European_Bank (1).csv' was not found. Currently displaying sample dashboard data. Check your GitHub repository structure.")
 
-# --- SIDEBAR: Filters ---
-st.sidebar.header("🔍 Filters")
+# --- SIDEBAR: Advanced Filters ---
+st.sidebar.header("🔍 Advanced Filters")
+st.sidebar.markdown("Slice and dice customer segments dynamically.")
 
+# 1. Geography Filter
 countries = ["All"] + list(df['Geography'].unique()) if 'Geography' in df.columns else ["All"]
 selected_country = st.sidebar.selectbox("Country", options=countries)
 
+# 2. Gender Filter (NEW)
+genders = ["All"] + list(df['Gender'].unique()) if 'Gender' in df.columns else ["All"]
+selected_gender = st.sidebar.selectbox("Gender", options=genders)
+
+# 3. Age Range Slider
 min_age = int(df['Age'].min()) if 'Age' in df.columns else 18
 max_age = int(df['Age'].max()) if 'Age' in df.columns else 100
 age_range = st.sidebar.slider("Age Range", min_age, max_age, (min_age, max_age))
 
-# Apply filters safely
+# 4. Credit Score Slider (NEW)
+min_cs = int(df['CreditScore'].min()) if 'CreditScore' in df.columns else 300
+max_cs = int(df['CreditScore'].max()) if 'CreditScore' in df.columns else 850
+credit_range = st.sidebar.slider("Credit Score Range", min_cs, max_cs, (min_cs, max_cs))
+
+# 5. Activity Status Filter (NEW)
+activity_options = ["All", "Active Member", "Inactive Member"]
+selected_activity = st.sidebar.selectbox("Activity Status", options=activity_options)
+
+# --- Apply All Filters Safely ---
 filtered_df = df.copy()
+
 if selected_country != "All" and 'Geography' in df.columns:
     filtered_df = filtered_df[filtered_df['Geography'] == selected_country]
+
+if selected_gender != "All" and 'Gender' in df.columns:
+    filtered_df = filtered_df[filtered_df['Gender'] == selected_gender]
+
 if 'Age' in df.columns:
     filtered_df = filtered_df[(filtered_df['Age'] >= age_range[0]) & (filtered_df['Age'] <= age_range[1])]
 
-st.sidebar.markdown(f"**Filtered Customers:** {len(filtered_df):,}")
+if 'CreditScore' in df.columns:
+    filtered_df = filtered_df[(filtered_df['CreditScore'] >= credit_range[0]) & (filtered_df['CreditScore'] <= credit_range[1])]
+
+if selected_activity == "Active Member" and 'IsActiveMember' in df.columns:
+    filtered_df = filtered_df[filtered_df['IsActiveMember'] == 1]
+elif selected_activity == "Inactive Member" and 'IsActiveMember' in df.columns:
+    filtered_df = filtered_df[filtered_df['IsActiveMember'] == 0]
+
+st.sidebar.markdown("---")
+st.sidebar.markdown(f"**Filtered Customers:** `{len(filtered_df):,}` / `{len(df):,}`")
 
 # --- MAIN TITLE ---
 st.title("🏦 European Bank Churn Risk Dashboard")
