@@ -119,27 +119,79 @@ with tab1:
             st.info("Chart data unavailable.")
 
 with tab2:
-    st.subheader("Single Customer Simulator")
-    st.markdown("Adjust customer details to test risk probability:")
-    
-    with st.form("sim_form"):
-        col_a, col_b = st.columns(2)
-        with col_a:
-            cs = st.slider("Credit Score", 300, 850, 650)
-            age = st.slider("Age", 18, 92, 40)
-            tenure = st.slider("Tenure (Years)", 0, 10, 5)
-            bal = st.number_input("Account Balance ($)", 0.0, 250000.0, 50000.0)
-        with col_b:
-            prod = st.selectbox("Number of Products", [1, 2, 3, 4])
-            cc = st.selectbox("Has Credit Card?", [1, 0], format_func=lambda x: "Yes" if x == 1 else "No")
-            active = st.selectbox("Is Active Member?", [1, 0], format_func=lambda x: "Yes" if x == 1 else "No")
-            salary = st.number_input("Estimated Salary ($)", 0.0, 200000.0, 50000.0)
+    st.subheader("🔮 Individual Customer Churn Risk Simulator")
+    st.markdown("Adjust customer attributes using the controls below to calculate their real-time churn probability.")
+
+    with st.form("prediction_form"):
+        col1, col2 = st.columns(2)
         
-        submitted = st.form_submit_button("Calculate Risk", type="primary")
+        with col1:
+            credit_score = st.slider("Credit Score", 300, 850, 650, help="Customer's credit score")
+            age = st.slider("Age", 18, 92, 40, help="Customer's age in years")
+            tenure = st.slider("Tenure (Years)", 0, 10, 5, help="Number of years the customer has been with the bank")
+            balance = st.number_input("Account Balance ($)", 0.0, 250000.0, 50000.0)
+            geography = st.selectbox("Geography (Country)", ["France", "Germany", "Spain"])
+            
+        with col2:
+            gender = st.selectbox("Gender", ["Female", "Male"])
+            num_of_products = st.selectbox("Number of Bank Products", [1, 2, 3, 4])
+            has_cr_card = st.selectbox("Has Credit Card?", [1, 0], format_func=lambda x: "Yes" if x == 1 else "No")
+            is_active_member = st.selectbox("Is Active Member?", [1, 0], format_func=lambda x: "Yes" if x == 1 else "No")
+            estimated_salary = st.number_input("Estimated Salary ($)", 0.0, 200000.0, 50000.0)
+
+        submit_btn = st.form_submit_button("Calculate Churn Risk", type="primary")
+
+    if submit_btn:
+        # Create a DataFrame for the single customer input
+        input_dict = {
+            'CreditScore': [credit_score],
+            'Age': [age],
+            'Tenure': [tenure],
+            'Balance': [balance],
+            'NumOfProducts': [num_of_products],
+            'HasCrCard': [has_cr_card],
+            'IsActiveMember': [is_active_member],
+            'EstimatedSalary': [estimated_salary],
+            'Geography': [geography],
+            'Gender': [gender]
+        }
+        input_df = pd.DataFrame(input_dict)
         
-    if submitted:
-        st.success("Simulation complete!")
-        st.metric("Estimated Churn Probability", "18.4%")
+        # --- MODEL PREDICTION LOGIC ---
+        # If you have a trained model saved (e.g., joblib/pickle), load and predict here:
+        # model = joblib.load('model.pkl')
+        # churn_prob = model.predict_proba(input_df)[0][1]
+        
+        # Dynamic Risk Simulation based on standard bank churn behavior (Fallback / baseline)
+        risk_score = 0.10 # Base risk
+        if age > 45: risk_score += 0.20
+        if is_active_member == 0: risk_score += 0.15
+        if geography == "Germany": risk_score += 0.15
+        if num_of_products > 2: risk_score += 0.25
+        if balance > 100000: risk_score += 0.05
+        
+        churn_prob = min(max(risk_score, 0.02), 0.95) # Keep between 2% and 95%
+        
+        st.markdown("---")
+        st.subheader("Simulation Results")
+        
+        res_col1, res_col2 = st.columns(2)
+        with res_col1:
+            st.metric(
+                label="Estimated Churn Probability", 
+                value=f"{churn_prob * 100:.1f}%",
+                delta="High Risk" if churn_prob > 0.4 else "Low Risk",
+                delta_color="inverse"
+            )
+        with res_col2:
+            if churn_prob > 0.4:
+                st.error("⚠️ **High Risk Alert:** This customer exhibits strong indicators of churning. Consider offering a retention incentive or loyalty discount.")
+            else:
+                st.success("✅ **Low Risk:** This customer is stable and likely to stay with the bank.")
+                
+        # Optional: Display the processed profile back to the user
+        with st.expander("View Customer Profile Submitted"):
+            st.dataframe(input_df, use_container_width=True)
 
 with tab3:
     st.subheader("Filtered Dataset View")
